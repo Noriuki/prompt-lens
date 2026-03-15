@@ -8,16 +8,17 @@ from src.application.interfaces.retriever_gateway import RetrieverGateway
 from src.application.use_cases.analyze_prompt import analyze_prompt
 from src.config import get_settings
 from src.infrastructure.cache.memory_cache import InMemoryCache
-from src.infrastructure.cache.null_cache import NullCache
-from src.infrastructure.embeddings.openai_embeddings import OpenAIEmbeddings
 from src.infrastructure.llm.openai_analyzer import OpenAIAnalyzer
 from src.infrastructure.rag.knowledge import KNOWLEDGE_CHUNKS
-from src.infrastructure.rag.memory_retriever import MemoryRAGRetriever
+from src.infrastructure.rag.local_retriever import LocalRetriever
 from src.infrastructure.stats import get_analyses_count, increment_analyses
 from src.presentation.api.rate_limit import enforce_rate_limit
 from src.presentation.api.schemas import AnalyzeRequest, AnalyzeResponse, StatsResponse
 
 router = APIRouter(tags=["api"])
+
+# Cache sempre ativo, TTL fixo (1h)
+CACHE_TTL_SECONDS = 3600
 
 
 def get_llm_analyzer() -> LLMAnalyzerGateway:
@@ -25,27 +26,19 @@ def get_llm_analyzer() -> LLMAnalyzerGateway:
     if not (settings.openai_api_key or settings.openai_api_key.strip()):
         raise HTTPException(
             status_code=503,
-            detail="OPENAI_API_KEY não configurada. Defina no .env para usar análise via LLM.",
+            detail="OPENAI_AI_API_KEY não configurada. Defina no .env.",
         )
     return OpenAIAnalyzer(settings)
 
 
 def get_cache() -> CacheGateway:
-    settings = get_settings()
-    if settings.cache_enabled:
-        return InMemoryCache(default_ttl_seconds=settings.cache_ttl_seconds)
-    return NullCache()
+    """Cache em memória obrigatório."""
+    return InMemoryCache(default_ttl_seconds=CACHE_TTL_SECONDS)
 
 
 def get_retriever() -> RetrieverGateway:
-    settings = get_settings()
-    if not (settings.openai_api_key or settings.openai_api_key.strip()):
-        raise HTTPException(
-            status_code=503,
-            detail="OPENAI_API_KEY não configurada. Defina no .env para análise com RAG.",
-        )
-    embeddings = OpenAIEmbeddings(settings)
-    return MemoryRAGRetriever(embeddings, KNOWLEDGE_CHUNKS)
+    """Retriever local por termos (sem embeddings, sem API)."""
+    return LocalRetriever(KNOWLEDGE_CHUNKS)
 
 
 @router.get("/ping")
@@ -75,13 +68,12 @@ def analyze(
     _: None = Depends(enforce_rate_limit),
 ) -> AnalyzeResponse:
     """Analisa um prompt via LLM com RAG (boas práticas recuperadas por similaridade). Sujeito a rate limit por IP."""
-    settings = get_settings()
     result = analyze_prompt(
         request.prompt,
         llm,
         retriever=retriever,
         cache=cache,
-        cache_ttl_seconds=settings.cache_ttl_seconds if settings.cache_enabled else None,
+        cache_ttl_seconds=CACHE_TTL_SECONDS,
     )
     increment_analyses()
     return AnalyzeResponse(

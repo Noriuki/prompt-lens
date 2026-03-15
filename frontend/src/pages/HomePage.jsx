@@ -1,40 +1,43 @@
-import { useState } from 'react'
-import { Layout } from '../components'
-import { analyzePrompt, ApiError } from '../api'
+import { useState } from "react";
+import { analyzePrompt, ApiError } from "../api";
+import { Layout } from "../components";
 
 export function HomePage() {
-  const [prompt, setPrompt] = useState('')
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [errorRequestId, setErrorRequestId] = useState(null)
-  const [errorCode, setErrorCode] = useState(null)
+  const [error, setError] = useState(null);
+  const [prompt, setPrompt] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorCode, setErrorCode] = useState(null);
+  const [errorRequestId, setErrorRequestId] = useState(null);
 
   const handleAnalyze = async () => {
-    setError(null)
-    setErrorRequestId(null)
-    setErrorCode(null)
-    setResult(null)
-    setLoading(true)
+    setError(null);
+    setErrorRequestId(null);
+    setErrorCode(null);
+    setResult(null);
+    setLoading(true);
     try {
-      const data = await analyzePrompt(prompt)
-      setResult(data)
+      const data = await analyzePrompt(prompt);
+      setResult(data);
     } catch (err) {
-      setError(err.message || 'Erro ao analisar')
+      setError(err.message || "Erro ao analisar");
       if (err instanceof ApiError) {
-        if (err.requestId) setErrorRequestId(err.requestId)
-        if (err.code) setErrorCode(err.code)
+        if (err.requestId) setErrorRequestId(err.requestId);
+        if (err.code) setErrorCode(err.code);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Layout>
       <section className="panel">
         <h2>Analisar prompt</h2>
-        <p className="hint">Cole ou digite o texto do prompt. A análise usa RAG (boas práticas) + LLM (OpenAI).</p>
+        <p className="hint">
+          Cole ou digite o texto do prompt. A análise usa RAG (boas práticas) +
+          LLM (OpenAI).
+        </p>
         <label htmlFor="prompt">Prompt</label>
         <textarea
           id="prompt"
@@ -50,13 +53,13 @@ export function HomePage() {
           onClick={handleAnalyze}
           disabled={loading || !prompt.trim()}
         >
-          {loading ? 'Analisando…' : 'Analisar'}
+          {loading ? "Analisando…" : "Analisar"}
         </button>
 
         {error && (
           <div className="result error" role="alert">
             <p className="error-message">{error}</p>
-            {errorCode === 'RATE_LIMIT_EXCEEDED' && (
+            {errorCode === "RATE_LIMIT_EXCEEDED" && (
               <p className="error-hint">Aguarde um minuto e tente novamente.</p>
             )}
             {errorRequestId && (
@@ -93,11 +96,11 @@ export function HomePage() {
               </div>
             </div>
             <div className="flags">
-              <span className={result.has_instructions ? 'flag on' : 'flag'}>
-                {result.has_instructions ? '✓' : '—'} Instruções
+              <span className={result.has_instructions ? "flag on" : "flag"}>
+                {result.has_instructions ? "✓" : "—"} Instruções
               </span>
-              <span className={result.has_examples ? 'flag on' : 'flag'}>
-                {result.has_examples ? '✓' : '—'} Exemplos
+              <span className={result.has_examples ? "flag on" : "flag"}>
+                {result.has_examples ? "✓" : "—"} Exemplos
               </span>
             </div>
             {result.suggestions && result.suggestions.length > 0 && (
@@ -115,7 +118,10 @@ export function HomePage() {
                 <p className="sections-title">Seções detectadas</p>
                 <ul className="sections-list">
                   {result.sections.map((s, i) => (
-                    <li key={i}>{s}{s.length >= 80 ? '…' : ''}</li>
+                    <li key={i}>
+                      {s}
+                      {s.length >= 80 ? "…" : ""}
+                    </li>
                   ))}
                 </ul>
               </>
@@ -124,5 +130,5 @@ export function HomePage() {
         )}
       </section>
     </Layout>
-  )
+  );
 }

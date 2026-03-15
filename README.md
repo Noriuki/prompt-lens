@@ -23,7 +23,7 @@ A UI consome a API (`POST /api/v1/analyze`), exibe erros com `request_id` quando
 
 ## Features (destaques para recrutadores)
 
-- **RAG (Retrieval-Augmented Generation)** — Análise do prompt enriquecida com chunks de boas práticas recuperados por similaridade semântica (embeddings + cosseno).
+- **RAG (Retrieval-Augmented Generation)** — Análise do prompt enriquecida com chunks de boas práticas recuperados **localmente** por sobreposição de termos (sem embeddings, sem API extra).
 - **Cache em memória** — Resultados de análise cacheados por hash do prompt (TTL configurável), reduzindo chamadas à LLM.
 - **Rate limiting** — Limite de requisições por IP por minuto (configurável), com resposta 429 estruturada.
 - **Request ID** — Todo request e response incluem `X-Request-ID` para rastreabilidade em logs e suporte.
@@ -66,7 +66,7 @@ make test          # testes do backend
 make lint          # ruff no backend
 ```
 
-**Docker:** copie `.env.example` para `.env`, configure `OPENAI_API_KEY` e depois:
+**Docker:** copie `.env.example` para `.env`, configure `OPENAI_AI_API_KEY` e depois:
 
 ```bash
 make docker-build
@@ -85,15 +85,14 @@ make docker-build
 
 ## Configuração (.env)
 
+Apenas duas variáveis:
+
 | Variável | Descrição | Default |
 |----------|-----------|---------|
-| `OPENAI_API_KEY` | Chave da API OpenAI (obrigatória para análise) | — |
-| `OPENAI_MODEL` | Modelo de chat | `gpt-4o-mini` |
-| `OPENAI_EMBEDDING_MODEL` | Modelo de embeddings (RAG) | `text-embedding-3-small` |
-| `CACHE_ENABLED` | Habilitar cache da análise | `true` |
-| `CACHE_TTL_SECONDS` | TTL do cache em segundos | `3600` |
-| `RATE_LIMIT_PER_MINUTE` | Máx. análises por IP/min (0 = desativado) | `20` |
-| `LOG_LEVEL` | Nível de log | `INFO` |
+| `OPENAI_AI_API_KEY` | Chave da API OpenAI (obrigatória) | — |
+| `OPENAI_AI_MODEL` | Modelo de chat (ex.: gpt-4o-mini) | `gpt-4o-mini` |
+
+Cache (em memória) e rate limit são obrigatórios e usam valores fixos no código. O retrieval RAG é local (por termos), sem embeddings.
 
 ---
 

@@ -1,7 +1,6 @@
-"""Configuração a partir de variáveis de ambiente."""
+"""Configuração: OPENAI_AI_API_KEY e OPENAI_AI_MODEL. Use .env dentro de backend/."""
 
 from functools import lru_cache
-from typing import List
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -14,24 +13,17 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    cors_origins: str = Field(default="*", description="CORS origins (comma-separated or *)")
-    log_level: str = Field(default="INFO", description="LOG_LEVEL")
-    openai_api_key: str = Field(default="", description="OPENAI_API_KEY para análise via LLM")
-    openai_model: str = Field(default="gpt-4o-mini", description="Modelo OpenAI (ex.: gpt-4o-mini)")
-    openai_embedding_model: str = Field(
-        default="text-embedding-3-small", description="Modelo de embeddings OpenAI"
-    )
-    cache_enabled: bool = Field(default=True, description="Habilitar cache da análise (em memória)")
-    cache_ttl_seconds: int = Field(default=3600, description="TTL do cache em segundos")
-    rate_limit_per_minute: int = Field(
-        default=20,
-        description="Máximo de análises por IP por minuto (0 = desativado)",
-    )
+    # Nomes dos campos = nomes das env (uppercase): OPENAI_AI_API_KEY, OPENAI_AI_MODEL
+    openai_ai_api_key: str = Field(default="", description="Chave API OpenAI")
+    openai_ai_model: str = Field(default="gpt-4o-mini", description="Modelo de chat")
 
-    def cors_origins_list(self) -> List[str]:
-        if not self.cors_origins or self.cors_origins.strip() == "*":
-            return ["*"]
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+    @property
+    def openai_api_key(self) -> str:
+        return self.openai_ai_api_key
+
+    @property
+    def openai_model(self) -> str:
+        return self.openai_ai_model
 
 
 @lru_cache

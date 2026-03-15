@@ -1,4 +1,4 @@
 from src.infrastructure.rag.knowledge import KNOWLEDGE_CHUNKS
-from src.infrastructure.rag.memory_retriever import MemoryRAGRetriever
+from src.infrastructure.rag.local_retriever import LocalRetriever
 
-__all__ = ["KNOWLEDGE_CHUNKS", "MemoryRAGRetriever"]
+__all__ = ["KNOWLEDGE_CHUNKS", "LocalRetriever"]

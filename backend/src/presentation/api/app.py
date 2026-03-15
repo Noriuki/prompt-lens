@@ -36,8 +36,11 @@ def _version() -> str:
 async def lifespan(app: FastAPI):
     global _start_time
     _start_time = time.monotonic()
-    level = getattr(logging, get_settings().log_level.upper(), logging.INFO)
-    logging.basicConfig(level=level, format="%(levelname)s [%(name)s] %(message)s", stream=sys.stdout)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s [%(name)s] %(message)s",
+        stream=sys.stdout,
+    )
     logger.info("Prompt Lens version=%s", _version())
     yield
 
@@ -59,7 +62,7 @@ app.add_middleware(RequestIDMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=get_settings().cors_origins_list(),
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

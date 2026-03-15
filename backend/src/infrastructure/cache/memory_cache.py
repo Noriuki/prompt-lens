@@ -1,4 +1,4 @@
-"""Cache em memória com TTL opcional."""
+"""Cache em memória com TTL opcional. É o cache padrão da aplicação (CACHE_ENABLED=true)."""
 
 import time
 from threading import Lock
