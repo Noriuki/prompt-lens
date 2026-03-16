@@ -1,7 +1,4 @@
-"""Testes do use case de análise de prompt (LLM, RAG e cache mockados)."""
-
 from src.application.interfaces.llm_analyzer import LLMAnalysisResult, LLMAnalyzerGateway
-from src.application.interfaces.retriever_gateway import RetrieverGateway
 from src.application.use_cases.analyze_prompt import analyze_prompt
 from src.domain.entities.prompt_analysis import PromptAnalysis
 from src.infrastructure.cache.memory_cache import InMemoryCache
@@ -10,11 +7,9 @@ from src.infrastructure.cache.memory_cache import InMemoryCache
 class FakeLLMGateway(LLMAnalyzerGateway):
     def __init__(self):
         self.call_count = 0
-        self.last_context = None
 
-    def analyze(self, prompt_text: str, context: list[str] | None = None) -> LLMAnalysisResult:
+    def analyze(self, prompt_text: str) -> LLMAnalysisResult:
         self.call_count += 1
-        self.last_context = context
         return LLMAnalysisResult(
             clarity_score=8,
             has_instructions=True,
@@ -23,14 +18,6 @@ class FakeLLMGateway(LLMAnalyzerGateway):
             suggestions=["Adicione exemplos."],
             summary="Prompt com instruções claras.",
         )
-
-
-class FakeRetriever(RetrieverGateway):
-    def __init__(self, chunks: list[str] | None = None):
-        self.chunks = chunks or ["Chunk A", "Chunk B"]
-
-    def search(self, query_text: str, top_k: int = 5) -> list[str]:
-        return self.chunks[:top_k]
 
 
 def test_analyze_uses_llm_result():
@@ -61,13 +48,6 @@ def test_analyze_empty_prompt():
     assert r.char_count == 0
     assert r.line_count == 0
     assert r.estimated_tokens == 0
-
-
-def test_analyze_passes_rag_context_to_llm():
-    gateway = FakeLLMGateway()
-    retriever = FakeRetriever(chunks=["Prática 1", "Prática 2"])
-    analyze_prompt("Analise isto.", gateway, retriever=retriever)
-    assert gateway.last_context == ["Prática 1", "Prática 2"]
 
 
 def test_analyze_uses_cache_on_second_call():

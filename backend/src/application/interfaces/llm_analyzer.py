@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
-from typing import Any, List, Optional
+from typing import Any, List
 
 
 @dataclass
@@ -32,9 +32,9 @@ class LLMAnalysisResult:
 
 
 class LLMAnalyzerGateway(ABC):
-    """Interface para análise de prompt via modelo de linguagem (com contexto RAG opcional)."""
+    """Interface para análise de prompt via modelo de linguagem."""
 
     @abstractmethod
-    def analyze(self, prompt_text: str, context: Optional[List[str]] = None) -> LLMAnalysisResult:
-        """Analisa o texto do prompt; context = chunks recuperados pelo RAG (opcional)."""
+    def analyze(self, prompt_text: str) -> LLMAnalysisResult:
+        """Analisa o texto do prompt."""
         ...

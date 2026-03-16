@@ -24,7 +24,7 @@ class AnalyzeRequest(BaseModel):
 
 
 class AnalyzeResponse(BaseModel):
-    """Resultado da análise: métricas e feedback da LLM (RAG)."""
+    """Resultado da análise: métricas e feedback da LLM."""
 
     word_count: int
     char_count: int

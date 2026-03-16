@@ -1,5 +1,3 @@
-"""Métricas simples em memória (total de análises)."""
-
 from threading import Lock
 
 _lock = Lock()

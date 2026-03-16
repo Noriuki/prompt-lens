@@ -1,5 +1,3 @@
-"""Port para cache (análise de prompt, etc.)."""
-
 from abc import ABC, abstractmethod
 from typing import Optional
 

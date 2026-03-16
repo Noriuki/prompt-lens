@@ -1,18 +1,15 @@
-"""Cache em memória com TTL opcional. É o cache padrão da aplicação (CACHE_ENABLED=true)."""
-
+# Libraries
 import time
 from threading import Lock
 from typing import Optional
 
+# Interfaces
 from src.application.interfaces.cache_gateway import CacheGateway
 
-
 class InMemoryCache(CacheGateway):
-    """Implementação de cache em memória. Suporta TTL por entrada."""
-
     def __init__(self, default_ttl_seconds: Optional[int] = 3600) -> None:
+        self._store: dict[str, tuple[str, Optional[float]]] = {}
         self._default_ttl = default_ttl_seconds
-        self._store: dict[str, tuple[str, Optional[float]]] = {}  # key -> (value, expiry_time)
         self._lock = Lock()
 
     def get(self, key: str) -> Optional[str]:

@@ -1,4 +1,4 @@
-"""Teste de integração: POST /api/v1/analyze (LLM e RAG mockados no conftest)."""
+"""Teste de integração: POST /api/v1/analyze (LLM mockado no conftest)."""
 
 def test_analyze_returns_metrics_and_llm_fields(client):
     r = client.post("/api/v1/analyze", json={"prompt": "Hello world. Escreva um resumo."})

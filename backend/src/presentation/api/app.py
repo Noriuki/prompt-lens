@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Prompt Lens API",
-    description="API para análise de prompts com RAG (boas práticas), cache e métricas.",
+    description="API para análise de prompts com cache e métricas.",
     version=_version(),
     lifespan=lifespan,
     docs_url="/docs",

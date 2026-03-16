@@ -1,15 +1,17 @@
-"""Análise de prompt via OpenAI Chat Completions."""
-
+# Libraries
 import json
 import logging
 import re
-from typing import List, Optional
+from typing import List
 
+# Application
 from openai import OpenAI
 
+# Infrastructure
 from src.application.interfaces.llm_analyzer import LLMAnalysisResult, LLMAnalyzerGateway
 from src.config import Settings
 
+# Logging
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT_BASE = """Você é um analisador de prompts para uso com LLMs. Analise o prompt do usuário e responda APENAS com um único objeto JSON válido, sem markdown e sem texto antes ou depois, no formato:
@@ -22,10 +24,6 @@ SYSTEM_PROMPT_BASE = """Você é um analisador de prompts para uso com LLMs. Ana
   "summary": "<resumo em 1 ou 2 frases em português>"
 }
 Responda somente com o JSON."""
-
-RAG_CONTEXT_PREFIX = """Use como referência as seguintes boas práticas (recuperadas por similaridade):
-
-"""
 
 
 def _parse_json_from_content(content: str) -> dict:
@@ -69,7 +67,7 @@ class OpenAIAnalyzer(LLMAnalyzerGateway):
         self._client = OpenAI(api_key=settings.openai_api_key or None)
         self._model = settings.openai_model
 
-    def analyze(self, prompt_text: str, context: Optional[List[str]] = None) -> LLMAnalysisResult:
+    def analyze(self, prompt_text: str) -> LLMAnalysisResult:
         if not (prompt_text or "").strip():
             return LLMAnalysisResult(
                 clarity_score=0,
@@ -79,13 +77,10 @@ class OpenAIAnalyzer(LLMAnalyzerGateway):
                 suggestions=[],
                 summary="Prompt vazio.",
             )
-        system_content = SYSTEM_PROMPT_BASE
-        if context:
-            system_content = RAG_CONTEXT_PREFIX + "\n".join(f"- {c}" for c in context) + "\n\n" + SYSTEM_PROMPT_BASE
         response = self._client.chat.completions.create(
             model=self._model,
             messages=[
-                {"role": "system", "content": system_content},
+                {"role": "system", "content": SYSTEM_PROMPT_BASE},
                 {"role": "user", "content": prompt_text},
             ],
             temperature=0.2,

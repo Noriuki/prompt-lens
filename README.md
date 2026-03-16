@@ -66,7 +66,7 @@ make test          # testes do backend
 make lint          # ruff no backend
 ```
 
-**Docker:** copie `.env.example` para `.env`, configure `OPENAI_AI_API_KEY` e depois:
+**Docker:** copie `.env.example` para `.env`, configure `OPENAI_API_KEY` e depois:
 
 ```bash
 make docker-build
@@ -89,8 +89,8 @@ Apenas duas variáveis:
 
 | Variável | Descrição | Default |
 |----------|-----------|---------|
-| `OPENAI_AI_API_KEY` | Chave da API OpenAI (obrigatória) | — |
-| `OPENAI_AI_MODEL` | Modelo de chat (ex.: gpt-4o-mini) | `gpt-4o-mini` |
+| `OPENAI_API_KEY` | Chave da API OpenAI (obrigatória) | — |
+| `OPENAI_MODEL` | Modelo de chat (ex.: gpt-4o-mini) | `gpt-4o-mini` |
 
 Cache (em memória) e rate limit são obrigatórios e usam valores fixos no código. O retrieval RAG é local (por termos), sem embeddings.
 

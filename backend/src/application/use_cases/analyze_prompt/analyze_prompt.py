@@ -1,4 +1,4 @@
-"""Use case: analisar um prompt (métricas locais + LLM com RAG, cache opcional)."""
+"""Use case: analisar um prompt (métricas locais + LLM, cache opcional)."""
 
 import hashlib
 import json
@@ -6,10 +6,7 @@ from typing import Optional
 
 from src.application.interfaces.cache_gateway import CacheGateway
 from src.application.interfaces.llm_analyzer import LLMAnalysisResult, LLMAnalyzerGateway
-from src.application.interfaces.retriever_gateway import RetrieverGateway
 from src.domain.entities.prompt_analysis import PromptAnalysis
-
-RAG_TOP_K = 5
 
 
 def _estimate_tokens(text: str) -> int:
@@ -28,19 +25,15 @@ def _cache_key(prompt_text: str) -> str:
 def analyze_prompt(
     prompt_text: str,
     llm_gateway: LLMAnalyzerGateway,
-    retriever: Optional[RetrieverGateway] = None,
     cache: Optional[CacheGateway] = None,
     cache_ttl_seconds: Optional[int] = None,
 ) -> PromptAnalysis:
     """
-    Analisa o prompt: recupera contexto via RAG, chama a LLM com esse contexto e opcionalmente usa cache.
+    Analisa o prompt via LLM e opcionalmente usa cache.
     """
     text = prompt_text or ""
     words = text.split()
     lines = [l for l in text.splitlines() if l.strip()]
-    context: list[str] = []
-    if retriever and text.strip():
-        context = retriever.search(text, top_k=RAG_TOP_K)
 
     def build_result(llm_result: LLMAnalysisResult) -> PromptAnalysis:
         return PromptAnalysis(
@@ -66,7 +59,7 @@ def analyze_prompt(
             except (json.JSONDecodeError, TypeError, KeyError):
                 pass
 
-    llm_result = llm_gateway.analyze(text, context=context if context else None)
+    llm_result = llm_gateway.analyze(text)
     if cache and cache_ttl_seconds is not None:
         cache.set(key, json.dumps(llm_result.to_dict()), ttl_seconds=cache_ttl_seconds)
     elif cache:

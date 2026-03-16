@@ -1,20 +1,16 @@
-"""Resultado da análise de um prompt (métricas locais + resultado da LLM)."""
-
-from dataclasses import dataclass
 from typing import List
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
 class PromptAnalysis:
-    """Métricas locais e análise semântica da LLM (RAG)."""
-
+    summary: str
     word_count: int
     char_count: int
     line_count: int
-    estimated_tokens: int
-    sections: List[str]
-    has_instructions: bool
+    clarity_score: int
     has_examples: bool
-    clarity_score: int  # 1-10, da LLM
+    sections: List[str]
+    estimated_tokens: int
+    has_instructions: bool
     suggestions: List[str]
-    summary: str
