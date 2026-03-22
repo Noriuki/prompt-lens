@@ -1,6 +1,6 @@
 # Prompt Lens
 
-**Análise de prompts** com RAG (boas práticas), cache e observabilidade. **Full-stack:** API FastAPI + **interface web** React.
+**Análise de prompts** cache e observabilidade. **Full-stack:** API FastAPI + **interface web** React.
 
 **Stack:** Python 3.11+, FastAPI, React 18, Vite, Docker Compose.
 
@@ -10,10 +10,10 @@
 
 A aplicação web em `frontend/` permite colar um prompt, clicar em **Analisar** e ver em tempo real:
 
-- **Resumo** e **nota de clareza (1–10)** da LLM  
-- **Métricas**: palavras, caracteres, linhas, tokens estimados  
-- **Flags**: tem instruções? tem exemplos?  
-- **Sugestões de melhoria** e **seções detectadas**  
+- **Resumo** e **nota de clareza (1–10)** da LLM
+- **Métricas**: palavras, caracteres, linhas, tokens estimados
+- **Flags**: tem instruções? tem exemplos?
+- **Sugestões de melhoria** e **seções detectadas**
 
 A UI consome a API (`POST /api/v1/analyze`), exibe erros com `request_id` quando a API retorna erro estruturado e trata rate limit (429) com mensagem amigável.
 
@@ -21,9 +21,8 @@ A UI consome a API (`POST /api/v1/analyze`), exibe erros com `request_id` quando
 
 ---
 
-## Features (destaques para recrutadores)
+## Features
 
-- **RAG (Retrieval-Augmented Generation)** — Análise do prompt enriquecida com chunks de boas práticas recuperados **localmente** por sobreposição de termos (sem embeddings, sem API extra).
 - **Cache em memória** — Resultados de análise cacheados por hash do prompt (TTL configurável), reduzindo chamadas à LLM.
 - **Rate limiting** — Limite de requisições por IP por minuto (configurável), com resposta 429 estruturada.
 - **Request ID** — Todo request e response incluem `X-Request-ID` para rastreabilidade em logs e suporte.
@@ -44,7 +43,7 @@ prompt-lens/
 │   └── src/
 │       ├── domain/           # entidades
 │       ├── application/      # use cases + interfaces (ports)
-│       ├── infrastructure/   # LLM, cache, RAG, stats
+│       ├── infrastructure/   # LLM, cache, stats
 │       └── presentation/     # API, middleware, errors
 ├── frontend/            # React + Vite
 └── README.md
@@ -87,22 +86,22 @@ make docker-build
 
 Apenas duas variáveis:
 
-| Variável | Descrição | Default |
-|----------|-----------|---------|
-| `OPENAI_API_KEY` | Chave da API OpenAI (obrigatória) | — |
-| `OPENAI_MODEL` | Modelo de chat (ex.: gpt-4o-mini) | `gpt-4o-mini` |
+| Variável         | Descrição                         | Default       |
+| ---------------- | --------------------------------- | ------------- |
+| `OPENAI_API_KEY` | Chave da API OpenAI (obrigatória) | —             |
+| `OPENAI_MODEL`   | Modelo de chat (ex.: gpt-4o-mini) | `gpt-4o-mini` |
 
-Cache (em memória) e rate limit são obrigatórios e usam valores fixos no código. O retrieval RAG é local (por termos), sem embeddings.
+Cache (em memória) e rate limit são obrigatórios e usam valores fixos no código.
 
 ---
 
 ## Endpoints principais
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/health` | Health check (versão, uptime, checks) |
-| GET | `/api/v1/stats` | Total de análises |
-| POST | `/api/v1/analyze` | Analisa um prompt (RAG + LLM); sujeito a rate limit |
+| Método | Endpoint          | Descrição                                     |
+| ------ | ----------------- | --------------------------------------------- |
+| GET    | `/health`         | Health check (versão, uptime, checks)         |
+| GET    | `/api/v1/stats`   | Total de análises                             |
+| POST   | `/api/v1/analyze` | Analisa um prompt (LLM); sujeito a rate limit |
 
 ---
 

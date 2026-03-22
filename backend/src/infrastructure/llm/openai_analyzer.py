@@ -16,13 +16,17 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT_BASE = """Você é um analisador de prompts para uso com LLMs. Analise o prompt do usuário e responda APENAS com um único objeto JSON válido, sem markdown e sem texto antes ou depois, no formato:
 {
-  "clarity_score": <número de 1 a 10>,
-  "has_instructions": <true ou false>,
-  "has_examples": <true ou false>,
-  "sections": [<lista de strings descrevendo cada seção/parte do prompt>],
-  "suggestions": [<até 5 sugestões curtas de melhoria em português>],
-  "summary": "<resumo em 1 ou 2 frases em português>"
+    "clarity_score": <número de 1 a 10>,
+    "has_instructions": <true ou false>,
+    "has_examples": <true ou false>,
+    "sections": [<lista de strings: um rótulo curto por bloco/seção do prompt>],
+    "suggestions": [<até 5 sugestões curtas de melhoria>],
+    "summary": "<resumo em 1 ou 2 frases>"
 }
+
+Idioma: "suggestions" e "summary" no mesmo idioma do texto principal do prompt (idioma dominante das frases/regras).
+
+Regra obrigatória para "sections": cada string deve ser um rótulo legível NO IDIOMA DOMINANTE das instruções e regras do prompt (não o idioma das tags técnicas). Se o prompt usar tags em inglês (<scheduling>, <generic>) mas as regras estiverem em português, escreva rótulos em português que descrevam o bloco (ex.: "Agendamento", "Regras gerais"), e NÃO liste só o nome da tag em inglês. Só use nomes de tags literais quando o próprio conteúdo do prompt estiver integralmente nesse idioma.
 Responda somente com o JSON."""
 
 

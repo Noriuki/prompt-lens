@@ -3,6 +3,7 @@ import { analyzePrompt, ApiError } from "../api";
 import { Layout } from "../components";
 
 export function HomePage() {
+  const [step, setStep] = useState("input");
   const [error, setError] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState(null);
@@ -19,6 +20,7 @@ export function HomePage() {
     try {
       const data = await analyzePrompt(prompt);
       setResult(data);
+      setStep("analysis");
     } catch (err) {
       setError(err.message || "Erro ao analisar");
       if (err instanceof ApiError) {
@@ -30,45 +32,68 @@ export function HomePage() {
     }
   };
 
+  const handleNewAnalysis = () => {
+    setStep("input");
+    setResult(null);
+    setError(null);
+    setErrorRequestId(null);
+    setErrorCode(null);
+  };
+
   return (
     <Layout>
-      <section className="panel">
-        <h2>Analisar prompt</h2>
-        <p className="hint">
-          Cole ou digite o texto do prompt. A análise usa RAG (boas práticas) +
-          LLM (OpenAI).
-        </p>
-        <label htmlFor="prompt">Prompt</label>
-        <textarea
-          id="prompt"
-          className="input"
-          rows={8}
-          placeholder="Ex.: Você é um assistente. Explique em 3 passos como..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button
-          type="button"
-          className="btn primary"
-          onClick={handleAnalyze}
-          disabled={loading || !prompt.trim()}
-        >
-          {loading ? "Analisando…" : "Analisar"}
-        </button>
-
-        {error && (
-          <div className="result error" role="alert">
-            <p className="error-message">{error}</p>
-            {errorCode === "RATE_LIMIT_EXCEEDED" && (
-              <p className="error-hint">Aguarde um minuto e tente novamente.</p>
-            )}
-            {errorRequestId && (
-              <p className="error-request-id">Request ID: {errorRequestId}</p>
-            )}
+      {step === "input" && (
+        <section className="panel">
+          <h2>Analisar prompt</h2>
+          <p className="hint">
+            Cole ou digite o texto do prompt. A análise usa LLM (OpenAI).
+          </p>
+          <label htmlFor="prompt">Prompt</label>
+          <textarea
+            id="prompt"
+            className="input"
+            rows={8}
+            placeholder="Ex.: Você é um assistente. Explique em 3 passos como..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn primary"
+              onClick={handleAnalyze}
+              disabled={loading || !prompt.trim()}
+            >
+              {loading ? "Analisando…" : "Analisar"}
+            </button>
           </div>
-        )}
 
-        {result && !error && (
+          {error && (
+            <div className="result error" role="alert">
+              <p className="error-message">{error}</p>
+              {errorCode === "RATE_LIMIT_EXCEEDED" && (
+                <p className="error-hint">Aguarde um minuto e tente novamente.</p>
+              )}
+              {errorRequestId && (
+                <p className="error-request-id">Request ID: {errorRequestId}</p>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
+      {step === "analysis" && result && (
+        <section className="panel analysis-panel">
+          <div className="panel-header">
+            <h2>Análise</h2>
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={handleNewAnalysis}
+            >
+              Nova análise
+            </button>
+          </div>
           <div className="result analysis-result">
             {result.summary && (
               <p className="analysis-summary">{result.summary}</p>
@@ -95,14 +120,31 @@ export function HomePage() {
                 <span>{result.estimated_tokens}</span>
               </div>
             </div>
-            <div className="flags">
-              <span className={result.has_instructions ? "flag on" : "flag"}>
-                {result.has_instructions ? "✓" : "—"} Instruções
-              </span>
-              <span className={result.has_examples ? "flag on" : "flag"}>
-                {result.has_examples ? "✓" : "—"} Exemplos
-              </span>
-            </div>
+            <p className="checklist-heading">Critérios</p>
+            <ul className="checklist">
+              <li
+                className={
+                  result.has_instructions
+                    ? "checklist-item checked"
+                    : "checklist-item"
+                }
+              >
+                <span className="checklist-box" aria-hidden="true">
+                  {result.has_instructions ? "✓" : ""}
+                </span>
+                <span className="checklist-label">Instruções</span>
+              </li>
+              <li
+                className={
+                  result.has_examples ? "checklist-item checked" : "checklist-item"
+                }
+              >
+                <span className="checklist-box" aria-hidden="true">
+                  {result.has_examples ? "✓" : ""}
+                </span>
+                <span className="checklist-label">Exemplos</span>
+              </li>
+            </ul>
             {result.suggestions && result.suggestions.length > 0 && (
               <>
                 <p className="sections-title">Sugestões</p>
@@ -127,8 +169,8 @@ export function HomePage() {
               </>
             )}
           </div>
-        )}
-      </section>
+        </section>
+      )}
     </Layout>
   );
 }
