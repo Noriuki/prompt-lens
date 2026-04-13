@@ -1,17 +1,13 @@
-# Libraries
 import json
 import logging
 import re
 from typing import List
 
-# Application
 from openai import OpenAI
 
-# Infrastructure
 from src.application.interfaces.llm_analyzer import LLMAnalysisResult, LLMAnalyzerGateway
 from src.config import Settings
 
-# Logging
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT_BASE = """Você é um analisador de prompts para uso com LLMs. Analise o prompt do usuário e responda APENAS com um único objeto JSON válido, sem markdown e sem texto antes ou depois, no formato:

@@ -1,9 +1,7 @@
-# Libraries
 import time
 from threading import Lock
 from typing import Optional
 
-# Interfaces
 from src.application.interfaces.cache_gateway import CacheGateway
 
 class InMemoryCache(CacheGateway):
